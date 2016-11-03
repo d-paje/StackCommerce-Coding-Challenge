@@ -49,4 +49,15 @@ describe Twitter::Api do
       end
     end
   end
+
+  describe '.search_for' do
+    it "should search using twitter's search endpoint" do
+      VCR.use_cassette "search for hello" do 
+        results = Twitter::Api.search_for('hello')
+
+        expect(results.error).to be_nil
+        expect(results.data).not_to be_empty
+      end
+    end
+  end
 end

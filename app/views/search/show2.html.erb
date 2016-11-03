@@ -1,0 +1,30 @@
+<%= form_tag(search_search_path, method: "get") do %>
+    <%= label_tag(:query, "Search for:") %>
+    <%= text_field_tag(:query) %>
+    <%= submit_tag("Search") %>
+<% end %>
+
+<% if tweets.present? %>
+    <h1><%= "Tweets for #{query}" %></h1>
+    <table>
+        <tr>
+            <th>Date</th>
+            <th>Content</th>
+        </tr>
+
+        <% tweets.each do |tweet| %>
+            <tr>
+                <td><%= link_to tweet.date.to_formatted_s(:long_ordinal), tweet.link %></td>
+                <td><%= auto_link_content(tweet.content).html_safe %></td>
+            </tr>
+        <% end %>
+    </table>
+<% else %>
+    <% if error %>
+        <h3><%= error %></h3>
+    <% else %>
+        <h1>No results to display</h1>
+    <% end %>
+<% end %>
+
+<br>

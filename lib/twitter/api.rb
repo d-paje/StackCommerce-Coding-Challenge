@@ -3,6 +3,8 @@
 module Twitter
   class Api
     BASE_URL = 'https://api.twitter.com/1.1'
+    TWITTER_ACCESS_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAJ6lxgAAAAAAKZ1ZNg23rfGSpz0l5Px41KaAeCI%3DQAuzym799HfsFjMGOW17Gy2LmRKd2B4Pg5wIGU1Nn6NcbA6PgN'
+
 
     # simple wrapper for twitter results
     class ApiResults
@@ -52,13 +54,29 @@ module Twitter
       results
     end
 
+    def self.search_for string
+      route = "#{BASE_URL}/search/tweets.json?q=#{string}"
+      response = request(route)
+      body = JSON.parse(response.body)
+
+      results = ApiResults.new
+      results.data = body['statuses'].map do |status|
+        Twitter::Tweet.new(date: Time.zone.parse(status['created_at']), 
+                           author: status['user']['screen_name'],
+                           id: status['id'],
+                           content: status['text'])
+      end
+
+      results
+    end
+
     private
 
     # make a request to a specified Twitter API route
     def self.request route
       uri = URI(route)
       req = Net::HTTP::Get.new(uri)
-      req['Authorization'] = "Bearer #{ENV['TWITTER_ACCESS_TOKEN']}"
+      req['Authorization'] = "Bearer #{TWITTER_ACCESS_TOKEN}"
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true # required by Twitter
       res = http.start { |http| http.request(req) }

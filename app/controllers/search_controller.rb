@@ -15,6 +15,19 @@ class SearchController < ApplicationController
     end
   end
 
+  def search
+    query = params[:query]
+
+    results = Rails.cache.fetch(query, expires_in: 5.minutes) do 
+      Twitter::Api.search_for(query) 
+    end
+
+    respond_to do |format|
+      format.json { render json: results }
+      format.html { render 'show2', locals: { tweets: results.data, error: results.error, query: query } }
+    end
+  end 
+
   def home
     respond_to do |format|
       format.html { render 'show', locals: { tweets: [], error: nil } }
